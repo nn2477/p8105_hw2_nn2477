@@ -22,7 +22,7 @@ pols_month_df =
     prez_dem == 1 ~ "dem"
   )) %>% 
   select(-prez_dem, -prez_gop, -day) %>% 
-  relocate (year, month, president)
+  relocate (year, month, president) 
 
 snp_df = 
   read_csv("./fivethirtyeight_datasets/snp.csv") %>% 
@@ -30,17 +30,27 @@ snp_df =
   mutate(month = recode(month, `1` = "Jan", `2` = "Feb", `3` = "Mar", `4` = "Apr", `5` = "May", `6` = "Jun", `7` = "Jul", `8` = "Aug", `9` = "Sep", `10` = "Oct", `11` = "Nov", `12` = "Dec")) %>% 
   mutate(year = ifelse(year >= 50, paste0("19", year), paste0("20", year))) %>% 
   relocate(year, month) %>% 
-  select(-day)
+  select(-day) 
 
 unemployment_df = 
   read_csv("./fivethirtyeight_datasets/unemployment.csv") %>% 
   pivot_longer(
     Jan:Dec,
     names_to = "month"
-  ) 
-colnames(unemployment_df) <- tolower(colnames(unemployment_df))
+  ) %>% 
+  rename_with(tolower, everything())
 
 ```
 
-## merging snp_df and pols
+## merging snp_df and pols_month_df
+```{r}
+pols_snp_merge = left_join(pols_month_df, snp_df, by = c("year", "month"))
+```
+
+merging unemployment_df into our merged dataset 
+```{r}
+fivethirtyeight_merge = full_join(pols_snp_merge, unemployment_df, by = c("year", "month"))
+```
+
+
 
