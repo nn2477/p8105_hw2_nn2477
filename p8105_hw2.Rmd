@@ -1,0 +1,46 @@
+---
+title: "P8105_hw2"
+author: "Nhu Nguyen"
+date: "2023-09-27"
+output: github_document
+---
+## load necessary libraries 
+```{r}
+library(tidyverse)
+```
+## problem 1
+
+importing and cleaning dataset 
+
+```{r}
+pols_month_df = 
+  read_csv("./fivethirtyeight_datasets/pols-month.csv") %>% 
+  separate(mon, into = c("year", "month", "day")) %>% 
+  mutate(month = recode(month, `01` = "Jan", `02` = "Feb", `03` = "Mar", `04` = "Apr", `05` = "May", `06` = "Jun", `07` = "Jul", `08` = "Aug", `09` = "Sep", `10` = "Oct", `11` = "Nov", `12` = "Dec")) %>% 
+  mutate(president = case_when(
+    prez_gop == 1 ~ "gop",
+    prez_dem == 1 ~ "dem"
+  )) %>% 
+  select(-prez_dem, -prez_gop, -day) %>% 
+  relocate (year, month, president)
+
+snp_df = 
+  read_csv("./fivethirtyeight_datasets/snp.csv") %>% 
+  separate(date, into = c("month", "day", "year")) %>% 
+  mutate(month = recode(month, `1` = "Jan", `2` = "Feb", `3` = "Mar", `4` = "Apr", `5` = "May", `6` = "Jun", `7` = "Jul", `8` = "Aug", `9` = "Sep", `10` = "Oct", `11` = "Nov", `12` = "Dec")) %>% 
+  mutate(year = ifelse(year >= 50, paste0("19", year), paste0("20", year))) %>% 
+  relocate(year, month) %>% 
+  select(-day)
+
+unemployment_df = 
+  read_csv("./fivethirtyeight_datasets/unemployment.csv") %>% 
+  pivot_longer(
+    Jan:Dec,
+    names_to = "month"
+  ) 
+colnames(unemployment_df) <- tolower(colnames(unemployment_df))
+
+```
+
+## merging snp_df and pols
+
