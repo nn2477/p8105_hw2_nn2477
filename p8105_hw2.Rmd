@@ -4,7 +4,7 @@ author: "Nhu Nguyen"
 date: "2023-09-27"
 output: github_document
 ---
-## load necessary libraries 
+**load necessary libraries**
 ```{r}
 library(tidyverse)
 ```
@@ -13,18 +13,18 @@ library(tidyverse)
 importing and cleaning dataset 
 
 ```{r}
-pols_month_df = 
+pols_month = 
   read_csv("./fivethirtyeight_datasets/pols-month.csv") %>% 
   separate(mon, into = c("year", "month", "day")) %>% 
   mutate(month = recode(month, `01` = "Jan", `02` = "Feb", `03` = "Mar", `04` = "Apr", `05` = "May", `06` = "Jun", `07` = "Jul", `08` = "Aug", `09` = "Sep", `10` = "Oct", `11` = "Nov", `12` = "Dec")) %>% 
   mutate(president = case_when(
-    prez_gop == 1 ~ "gop",
-    prez_dem == 1 ~ "dem"
+    prez_dem == 1 ~ "dem",
+    prez_gop == 1 ~ "gop"
   )) %>% 
   select(-prez_dem, -prez_gop, -day) %>% 
   relocate (year, month, president) 
 
-snp_df = 
+snp = 
   read_csv("./fivethirtyeight_datasets/snp.csv") %>% 
   separate(date, into = c("month", "day", "year")) %>% 
   mutate(month = recode(month, `1` = "Jan", `2` = "Feb", `3` = "Mar", `4` = "Apr", `5` = "May", `6` = "Jun", `7` = "Jul", `8` = "Aug", `9` = "Sep", `10` = "Oct", `11` = "Nov", `12` = "Dec")) %>% 
@@ -32,25 +32,36 @@ snp_df =
   relocate(year, month) %>% 
   select(-day) 
 
-unemployment_df = 
+unemployment = 
   read_csv("./fivethirtyeight_datasets/unemployment.csv") %>% 
   pivot_longer(
     Jan:Dec,
     names_to = "month"
   ) %>% 
-  rename_with(tolower, everything())
-
+  rename_with(tolower, everything()) 
 ```
-
-## merging snp_df and pols_month_df
+converting variable year from numeric to character data type in unemployment dataset
 ```{r}
-pols_snp_merge = left_join(pols_month_df, snp_df, by = c("year", "month"))
+unemployment$year <- as.character(unemployment$year)
 ```
 
-merging unemployment_df into our merged dataset 
+merging snp_df and pols_month_df
 ```{r}
-fivethirtyeight_merge = full_join(pols_snp_merge, unemployment_df, by = c("year", "month"))
+pols_snp_merge = left_join(pols_month, snp, by = c("year", "month"))
 ```
 
+merging unemployment_df into our merged dataset
+```{r}
+fivethirtyeight_merge = full_join(pols_snp_merge, unemployment, by = c("year", "month"), copy = TRUE)
+```
+
+**description:**
+The pol_month data set contains 822 observations of 9 variables regarding number republican or democratic national politicians associated with the month & year. The snp data set contains 787 observations of 3 variables relating to the closing value of the S&P stock index associated month & year. The unemployment data set contains 816 observations of 3 variables pertaining to the percentage of unemployment associated with the month & year. When merging all three data sets together, it creates a data set that contains 828 observations of 12 variables, with information pertaining to unemployment percentage and S&P stock index closing value, and whether the president during the associated month & date was republican or democrat. The relevant years with no missing information is from Jan 1950- Jun 2015. The key variables to look at would be the year, president, close, and value. 
+
+## problem 2 
+```{r}
+trash =
+  readxl::read_excel("./Trash_Wheel_Collection_Data.xlsx", range = "2A:)
+```
 
 
