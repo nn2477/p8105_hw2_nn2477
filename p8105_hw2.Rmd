@@ -78,7 +78,7 @@ trash_wheel =
   mutate(trash_var = "prof_trash_wheel")
 
 gwynnda =
-  readxl::read_excel("./Trash_Wheel_Collection_Data.xlsx", sheet = 4, range = "A20:K108", col_names = c("dumpster", "month", "year", "date", "weight_tons", "Volume (cubic yards)", "plastic_bottles", "Polystyrene", "cigarette_butts", "grocery_bags", "homes_powered")) %>% 
+  readxl::read_excel("./Trash_Wheel_Collection_Data.xlsx", sheet = 4) %>% 
   janitor::clean_names() %>% 
   mutate(homes_powered = ((weight_tons*500)/1000)) %>% 
   mutate(trash_var = "gwynnda")
@@ -98,8 +98,14 @@ trash_tidy =
   relocate(dumpster, trash_var)
 ```
 
+cigarette butts collected by Gwynnda in July 2021
+```{r}
+gwynnda_july <- subset(gwynnda, month == "July" & year == "2021")
+```
+
+
 **description:**
-This data set contains estimated trash gathered from a water-wheel vessel that removes trash from the Inner Harbor in Baltimore, Maryland. It contains `r nrow(trash_tidy)` and `r ncol(trash_tidy)`. Some key variables in this data set includes `weight_tons`, `volumne_cubic_yards`, and `homes_powered`. The total weight of trash collected by Professor Trash Wheel was `r sum(trash_wheel$weight_tons)`. The total numer of cigarette butts collected by Gwynnda in July 2022 was `r sum(gwynnda$cigarette_butts)`
+This data set contains estimated trash gathered from a water-wheel vessel that removes trash from the Inner Harbor in Baltimore, Maryland. It contains `r nrow(trash_tidy)` and `r ncol(trash_tidy)`. Some key variables in this data set includes `weight_tons`, `volumne_cubic_yards`, and `homes_powered`. The total weight of trash collected by Professor Trash Wheel was `r sum(trash_wheel$weight_tons)` tons. The total number of cigarette butts collected by Gwynnda in July 2021 was `r sum(gwynnda_july$cigarette_butts)`
 
 ## problem 3
 
