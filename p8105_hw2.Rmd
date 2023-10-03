@@ -60,42 +60,42 @@ The pol_month data set contains 822 observations of 9 variables regarding number
 
 ## problem 2 
 
-importing and cleaning data
+importing and cleaning data, making sure that all variable names are labeled the same for easy merge
 
 ```{r}
 trash =  
-  readxl::read_excel("./Trash_Wheel_Collection_Data.xlsx") %>% 
+  readxl::read_excel("./TrashWheelCollectionData.xlsx", sheet = 1, range = "A3:N586", col_names = c("dumpster", "month", "year", "date", "weight_tons", "volume (cubic yards)", "plastic_bottles", "polystyrene", "cigarette_butts", "glass_bottles", "plastic_bags", "wrappers", "sports", "homes_powered")) %>% 
   janitor::clean_names() %>% 
-  select(-15, -16) %>% 
-  slice(-548) %>% 
   mutate(homes_powered = ((weight_tons*500)/1000)) %>% 
   mutate(trash_var = "mr.trash_wheel")
 
 trash_wheel =
-  readxl::read_excel("./Trash_Wheel_Collection_Data.xlsx", sheet = 2, range = "A3:M96", col_names = c("dumpster", "month", "year", "date", "weight_tons", "Volume (cubic yards)", "plastic_bottles", "polystyrene", "cigarette_butts", "glass_bottles", "grocery_bags", "chip_bags", "homes_powered")) %>% 
+  readxl::read_excel("./TrashWheelCollectionData.xlsx", sheet = 2, range = "A3:M96", col_names = c("dumpster", "month", "year", "date", "weight_tons", "volume (cubic yards)", "plastic_bottles", "polystyrene", "cigarette_butts", "glass_bottles", "plastic_bags", "wrappers", "homes_powered")) %>% 
   janitor::clean_names() %>% 
   mutate(homes_powered = ((weight_tons*500)/1000)) %>% 
   mutate(trash_var = "prof_trash_wheel")
 
 gwynnda =
-  readxl::read_excel("./Trash_Wheel_Collection_Data.xlsx", sheet = 4) %>% 
+  readxl::read_excel("./TrashWheelCollectionData.xlsx", sheet = 4, range = "A3:L157", col_names = c("dumpster", "month", "year", "date", "weight_tons", "volume (cubic yards)", "plastic_bottles", "polystyrene", "cigarette_butts",  "plastic_bags", "wrappers", "homes_powered")) %>% 
   janitor::clean_names() %>% 
   mutate(homes_powered = ((weight_tons*500)/1000)) %>% 
   mutate(trash_var = "gwynnda")
 ```
-converting 
+
+converting year from character value to numeric value:
+
 ```{r}
 trash$year <- as.numeric(trash$year)
 trash_wheel$year <- as.numeric(trash_wheel$year)
 ```
 
+merging all data set: 
 
-merging data set: 
 ```{r}
 trash_tidy = 
   bind_rows(trash, trash_wheel, gwynnda) %>% 
   janitor::clean_names() %>% 
-  relocate(dumpster, trash_var)
+  relocate(trash_var)
 ```
 
 cigarette butts collected by Gwynnda in July 2021
@@ -103,9 +103,8 @@ cigarette butts collected by Gwynnda in July 2021
 gwynnda_july <- subset(gwynnda, month == "July" & year == "2021")
 ```
 
-
 **description:**
-This data set contains estimated trash gathered from a water-wheel vessel that removes trash from the Inner Harbor in Baltimore, Maryland. It contains `r nrow(trash_tidy)` and `r ncol(trash_tidy)`. Some key variables in this data set includes `weight_tons`, `volumne_cubic_yards`, and `homes_powered`. The total weight of trash collected by Professor Trash Wheel was `r sum(trash_wheel$weight_tons)` tons. The total number of cigarette butts collected by Gwynnda in July 2021 was `r sum(gwynnda_july$cigarette_butts)`
+This data set contains estimated trash gathered from a water-wheel vessel that removes trash from the Inner Harbor in Baltimore, Maryland. It contains `r nrow(trash_tidy)` observations and `r ncol(trash_tidy)` variables. Some key variables in this data set includes `weight_tons`, `volumne_cubic_yards`, and `homes_powered`. The total weight of trash collected by Professor Trash Wheel was `r sum(trash_wheel$weight_tons)` tons. The total number of cigarette butts collected by Gwynnda in July 2021 was `r sum(gwynnda_july$cigarette_butts)`
 
 ## problem 3
 
@@ -137,7 +136,7 @@ baseline %>%
 **description:**
 Because the first row in the data set was not the variables, but was information of what the numeric values indicate, I had to specify to R to skip the first row and read the second row as the variable column. Additionally, I had to remove any missing data, coded as ".", since those individuals remained MCI free for the baseline data set. 483 participants were recruited, however, only `r nrow(baseline)` developed MCI. The average baseline age in this study was `r mean(baseline$age_at_onset)`. The proportion of women in the study who are APOE4 carriers is ~0.652. 
 
-importing longitudinally observed biomarker values
+importing longitudinally observed biomarker values:
 ```{r}
 amyloid = 
   read_csv("./data_mci/mci_amyloid.csv", skip = 1, col_names = FALSE) %>%
