@@ -56,7 +56,7 @@ fivethirtyeight_merge = full_join(pols_snp_merge, unemployment, by = c("year", "
 ```
 
 **description**
-The pols_month data set contains `r nrow(pols_month)` observations of `r ncol(pols_month)` variables regarding number republican or democratic national politicians associated with the month & year. The snp data set contains `r nrow(snp)` observations of `r ncol(snp)` variables relating to the closing value of the S&P stock index associated month & year. The unemployment data set contains `r nrow(unemployment)` observations of `r ncol(unemployment)` variables pertaining to the percentage of unemployment associated with the month & year. When merging all three data sets together, it creates a data set that contains `r nrow(fivethirtyeight_merge)` observations of `r ncol(fivethirtyeight_merge)` variables, with information pertaining to unemployment percentage and S&P stock index closing value, and whether the president during the associated month & date was republican or democrat. The relevant years with no missing information is from Jan 1950- Jun 2015. The key variables to look at would be the year, `president`, `close`, and `value`.
+The pols_month data set contains `r nrow(pols_month)` observations of `r ncol(pols_month)` variables regarding number republican or democratic national politicians associated with the month & year. The snp data set contains `r nrow(snp)` observations of `r ncol(snp)` variables relating to the closing value of the S&P stock index associated month & year. The unemployment data set contains `r nrow(unemployment)` observations of `r ncol(unemployment)` variables pertaining to the percentage of unemployment associated with the month & year. When merging all three data sets together, it creates a data set that contains `r nrow(fivethirtyeight_merge)` observations of `r ncol(fivethirtyeight_merge)` variables, with information pertaining to unemployment percentage and S&P stock index closing value, and whether the president during the associated month & date was republican or democrat. The relevant years with no missing information is from Jan 1950 - Jun 2015. The key variables to look at would be the year, `president`, `close`, and `value`.
 
 ## problem 2 ##
 
@@ -148,7 +148,7 @@ amyloid =
   select (id, everything(), -study_id)
 ```
 **description:**
-Similar to the baseline data set, the amyloid data set's first row gave information of the units, thus I had to specify to R to skip the first row and read the second row as the variable. I then created a new variable `time` and moved the columns into that variable through using the pivot_longer function so that I will be able to merge the dataset. I also had to change the variable `study_id` to `id` so that it would match the baseline data variables. 
+Similar to the baseline data set, the amyloid data set's first row gave information of the units, thus I had to specify to R to skip the first row and read the second row as the variable. I then created a new variable `time` and moved the columns into that variable through using the pivot_longer function so that I will be able to merge the dataset. I also had to change the variable `study_id` to `id` so that it would match the baseline data variables. There are `r nrow(amyloid)/5` participants in this data set with `r ncol(amyloid)` variables. 
 
 checking to see if some participants only appear in baseline or amyloid data set 
 ```{r}
@@ -162,7 +162,7 @@ mci_merge = inner_join(baseline, amyloid, by = "id")
 ```
 
 **description:**
-In the mci_merge data set, I did an inner_join of the baseline and amyloid data set by variable `id` to ensure that only that appear in both datasets are retained. After merging, there are `r nrow(mci_merge)/5` participants left in the study. 
+In the mci_merge data set, I did an inner_join of the baseline and amyloid data set by variable `id` to ensure that only that appear in both datasets are retained. After merging, there are `r nrow(mci_merge)/5` participants with `n rcol(mci_merge)` varibles left in the study. 
 
 exporting results as csv onto desktop 
 ```{r}
