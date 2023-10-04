@@ -55,8 +55,8 @@ merging unemployment into our merged dataset
 fivethirtyeight_merge = full_join(pols_snp_merge, unemployment, by = c("year", "month"), copy = TRUE)
 ```
 
-
-The pols_month data set contains 822 observations of 9 variables regarding number republican or democratic national politicians associated with the month & year. The snp data set contains 787 observations of 3 variables relating to the closing value of the S&P stock index associated month & year. The unemployment data set contains 816 observations of 3 variables pertaining to the percentage of unemployment associated with the month & year. When merging all three data sets together, it creates a data set that contains 828 observations of 11 variables, with information pertaining to unemployment percentage and S&P stock index closing value, and whether the president during the associated month & date was republican or democrat. The relevant years with no missing information is from Jan 1950- Jun 2015. The key variables to look at would be the year, `president`, `close`, and `value`.
+**description**
+The pols_month data set contains `r nrow(pols_month)` observations of `r ncol(pols_month)` variables regarding number republican or democratic national politicians associated with the month & year. The snp data set contains `r nrow(snp)` observations of `r ncol(snp)` variables relating to the closing value of the S&P stock index associated month & year. The unemployment data set contains `r nrow(unemployment)` observations of `r ncol(unemployment)` variables pertaining to the percentage of unemployment associated with the month & year. When merging all three data sets together, it creates a data set that contains `r nrow(fivethirtyeight_merge)` observations of `r ncol(fivethirtyeight_merge)` variables, with information pertaining to unemployment percentage and S&P stock index closing value, and whether the president during the associated month & date was republican or democrat. The relevant years with no missing information is from Jan 1950- Jun 2015. The key variables to look at would be the year, `president`, `close`, and `value`.
 
 ## problem 2 ##
 
@@ -111,14 +111,12 @@ importing baseline data
 
 ```{r}
 baseline = 
-  read_csv("./data_mci/MCI_baseline.csv", skip = 1, col_names = FALSE) %>%
-  {colnames(.) <- as.character(.[1, ]); .[-1, ]} %>% 
+  read_csv("./data_mci/MCI_baseline.csv", skip = 1)%>%
   janitor::clean_names() %>% 
   mutate(
     sex = recode(sex, `1` = "male", `0` = "female"),
-    apoe4 = recode(apoe4, `1` = "carrier", `0` = "non-carrier"),
-    age_at_onset = as.integer(age_at_onset)) %>% 
-  filter(age_at_onset != ".") 
+    apoe4 = recode(apoe4, `1` = "carrier", `0` = "non-carrier")) %>% 
+    filter(age_at_onset > current_age | age_at_onset == ".")
 ```
 
 proportion of women in the study who are apoe4 carriers: 
@@ -131,33 +129,42 @@ baseline %>%
 
 
 **description:**
-Because the first row in the data set was not the variables, but was information of what the numeric values indicate, I had to specify to R to skip the first row and read the second row as the variable column. Additionally, I had to remove any missing data, coded as ".", since those individuals remained MCI free for the baseline data set. 483 participants were recruited, however, only `r nrow(baseline)` developed MCI. The average baseline age in this study was `r mean(baseline$age_at_onset)`. The proportion of women in the study who are APOE4 carriers 
-is 65.21%. 
+Because the first row in the data set was not the variables, but was information of what the numeric values indicate, I had to specify to R to skip the first row and read the second row as the variable column. Additionally, I re-coded sex so that the output would either be female or male and apoe4 as carrier or non-carrier since they were numeric values in the raw dataset. I then excluded those who's `age_at_onset` predates `current_age` as they did not meet the inclusion criteria. The average baseline age in this study was `r mean(baseline$current_age)` years old. The proportion of women in the study who are APOE4 carriers is 30%.
 
 importing longitudinally observed biomarker values:
 ```{r}
 amyloid = 
-  read_csv("./data_mci/mci_amyloid.csv", skip = 1, col_names = FALSE) %>%
-  {colnames(.) <- as.character(.[1, ]); .[-1, ]} %>% 
+  read_csv("./data_mci/mci_amyloid.csv", skip = 1) %>% 
   janitor::clean_names() %>% 
-  filter(complete.cases(.)) %>% 
-  filter_all(all_vars(!grepl("Na", .))) %>% 
-  mutate(id = study_id) %>% 
+  pivot_longer(
+    baseline:time_8,
+    names_to = "time",
+    names_prefix = "time_"
+  ) %>% 
+  mutate(
+    id = study_id, 
+    time = recode(time, "baseline" = "0"),
+    id = as.integer(id)) %>% 
   select (id, everything(), -study_id)
 ```
 **description:**
-Similar to the baseline data set, the amyloid data set's first row gave information of the units, i.e. time in years elapsed since the study baseline to the visit where amyloid had a 42/40 ratio. I had to specify to R to skip the first row and read the second row as the variable. Additionally, I had to remove any participants that had missing variables, including those coded as "Na" and those that were left blank. Thus the data set only contains participants with data at baseline and every time point (in years). I also had to change the variable `study_id` to `id` so that it would match the baseline data variables. 
+Similar to the baseline data set, the amyloid data set's first row gave information of the units, thus I had to specify to R to skip the first row and read the second row as the variable. I then created a new variable `time` and moved the columns into that variable through using the pivot_longer function so that I will be able to merge the dataset. I also had to change the variable `study_id` to `id` so that it would match the baseline data variables. 
 
-Because the amyloid data set has `r nrow(amyloid)` participants, whereas the baseline data set only has `r nrow(baseline)`, we can tell that there is more data for amyloid than there are baseline measurements. 
+checking to see if some participants only appear in baseline or amyloid data set 
+```{r}
+mci_2 <- anti_join(baseline, amyloid, by = "id" )
+```
+There are `r nrow(mci_2)` participants that only appear in only the baseline or amyloid dataset. 
 
 merging data set together:
 ```{r}
-mci_merge = merge(baseline, amyloid, by = "id")
+mci_merge = inner_join(baseline, amyloid, by = "id")
 ```
 
 **description:**
-In the mci_merge data set, I combined the baseline and amyloid data set together by variable `id` to ensure that only that appear in both datasets are retained. After merging, there are `r nrow(mci_merge)` participants left in the study. 
+In the mci_merge data set, I did an inner_join of the baseline and amyloid data set by variable `id` to ensure that only that appear in both datasets are retained. After merging, there are `r nrow(mci_merge)/5` participants left in the study. 
 
+exporting results as csv onto desktop 
 ```{r}
 p8105_hw2_nn2477 <- "/Users/nhunguyen/Desktop/P8150/p8105_hw2_nn2477/mci_merge.csv"
 write.csv(mci_merge, file = p8105_hw2_nn2477, row.names = FALSE)
