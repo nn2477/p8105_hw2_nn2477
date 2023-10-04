@@ -129,12 +129,12 @@ baseline %>%
   group_by(sex) %>% 
   summarize(prop_apoe4_carrier = mean(apoe4 == "carrier", na.rm = TRUE)) %>% 
   filter(sex == "female")
-
 ```
 
 
 **description:**
 Because the first row in the data set was not the variables, but was information of what the numeric values indicate, I had to specify to R to skip the first row and read the second row as the variable column. Additionally, I re-coded sex so that the output would either be female or male and apoe4 as carrier or non-carrier since they were numeric values in the raw dataset. I then excluded those who's `age_at_onset` predates `current_age` as they did not meet the inclusion criteria. `r nrow(baseline)` participants were recruited and of these participants, `r nrow(developed_mci)` developed MCI. The average baseline age in this study was `r mean(baseline$current_age)` years old. The proportion of women in the study who are APOE4 carriers is 30%.
+The proportion of women in the study who are APOE4 carriers is `r sum(with(baseline, sex == "female" & apoe4 == "carrier")) / length(with(baseline, sex[sex == "female"])) * 100`%.
 
 importing longitudinally observed biomarker values:
 ```{r}
