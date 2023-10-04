@@ -149,7 +149,7 @@ checking to see if some participants only appear in baseline or amyloid data set
 ```{r}
 mci_2 <- anti_join(baseline, amyloid, by = "id" )
 ```
-There are `r nrow(mci_2)` participants that only appear in only the baseline or amyloid dataset. 
+There are `r nrow(mci_2)` participants with `r ncol(mci_2)` variables that only appear in only the baseline or amyloid dataset. 
 
 merging data set together:
 ```{r}
@@ -157,7 +157,7 @@ mci_merge = inner_join(baseline, amyloid, by = "id")
 ```
 
 **description:**
-In the mci_merge data set, I did an inner_join of the baseline and amyloid data set by variable `id` to ensure that only that appear in both datasets are retained. After merging, there are `r nrow(mci_merge)/5` participants with `n rcol(mci_merge)` varibles left in the study. 
+In the mci_merge data set, I did an inner_join of the baseline and amyloid data set by variable `id` to ensure that only that appear in both datasets are retained. After merging, there are `r nrow(mci_merge)/5` participants with `r ncol(mci_merge)` varibles left in the study. 
 
 exporting results as csv onto desktop 
 ```{r}
